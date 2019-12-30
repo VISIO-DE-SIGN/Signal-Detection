@@ -65,3 +65,11 @@ for i = 1:num_blue
     h = caract_blue(i).BoundingBox(4);
     sign(length(caract_red) + i) = I(y:y+h,x:x+w,:);
 end
+
+%%
+% Show traffic signs detected
+
+for i = 1:length(sign)
+    figure
+    imshow(sign(:,:,:,i))
+end

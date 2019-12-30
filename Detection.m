@@ -29,6 +29,8 @@ caract_blue = regionprops(blue,'all');
 %%
 % Showing regions that follow some criteria
 imshow(I);
+goodBBindex_red = [];
+cont = 1;
 for i = 1:length(caract_red)
 	BB = caract_red(i).BoundingBox;
 	width = BB(:,3);
@@ -37,8 +39,13 @@ for i = 1:length(caract_red)
         rectangle('Position',caract_red(i).BoundingBox,'EdgeColor','r');
 		text(caract_red(i).BoundingBox(:,1),caract_red(i).BoundingBox(:,2),num2str(caract_red(i).Area),'Color','red',...
 		'FontSize',14);
+        goodBBindex_red(cont) = i;
+        cont = cont+1;
     end
 end
+
+goodBBindex_blue = [];
+cont = 1;
 for i = 1:length(caract_blue)
 	BB = caract_blue(i).BoundingBox;
 	width = BB(:,3);
@@ -47,6 +54,8 @@ for i = 1:length(caract_blue)
         rectangle('Position',caract_blue(i).BoundingBox,'EdgeColor','b');
 		text(caract_blue(i).BoundingBox(:,1),caract_blue(i).BoundingBox(:,2),num2str(caract_blue(i).Area),'Color','blue',...
 		'FontSize',14);
+        goodBBindex_blue(cont) = i;
+        cont = cont+1;
     end
 end
 
@@ -55,24 +64,24 @@ end
 % they will be passed to the clasification neural net.
 
 % preallocation for 100x100 resolution images
-num_red = length(caract_red);
-num_blue = length(caract_blue);
+num_red = length(goodBBindex_red);
+num_blue = length(goodBBindex_blue);
 sign = uint8(zeros(100,100,3,num_red+num_blue));
 
 for i = 1:num_red
-    x = caract_red(i).BoundingBox(1);
-    y = caract_red(i).BoundingBox(2);
-    w = caract_red(i).BoundingBox(3);
-    h = caract_red(i).BoundingBox(4);
+    x = caract_red(goodBBindex_red(i)).BoundingBox(1);
+    y = caract_red(goodBBindex_red(i)).BoundingBox(2);
+    w = caract_red(goodBBindex_red(i)).BoundingBox(3);
+    h = caract_red(goodBBindex_red(i)).BoundingBox(4);
     signal = I(y:y+h,x:x+w,:);
     sign(:,:,:,i) = imresize(signal,[100,100]);
 end
 
 for i = 1:num_blue
-    x = caract_blue(i).BoundingBox(1);
-    y = caract_blue(i).BoundingBox(2);
-    w = caract_blue(i).BoundingBox(3);
-    h = caract_blue(i).BoundingBox(4);
+    x = caract_blue(goodBBindex_blue(i)).BoundingBox(1);
+    y = caract_blue(goodBBindex_blue(i)).BoundingBox(2);
+    w = caract_blue(goodBBindex_blue(i)).BoundingBox(3);
+    h = caract_blue(goodBBindex_blue(i)).BoundingBox(4);
     signal = I(y:y+h,x:x+w,:);
     sign(:,:,:,num_red+i) = imresize(signal,[100,100]);
 end

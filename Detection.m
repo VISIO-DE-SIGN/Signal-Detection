@@ -3,7 +3,7 @@
 %%
 % Charging image
 dataset_path = getenv('Dataset_path');
-image = strcat(dataset_path, "\camera00\00\image.000060.jp2");  %191 %60 %4766
+image = strcat(dataset_path, "\camera00\00\image.000092.jp2");
 I = imread(image);
 
 %%
@@ -38,4 +38,30 @@ for i = 1:length(caract_blue)
     if(caract_blue(i).Area>10)
         rectangle('Position',caract_blue(i).BoundingBox,'EdgeColor','b')
     end
+end
+
+%%
+% saving those regions as new images
+% they will be passed to the clasification neural net.
+
+% preallocation for 100x100 resolution images
+num_red = length(caract_red);
+num_blue = length(caract_blue);
+sign = uint8(zeros(100,100,3,num_red+num_blue));
+
+for i = 1:num_red
+    x = caract_red(i).BoundingBox(1);
+    y = caract_red(i).BoundingBox(2);
+    w = caract_red(i).BoundingBox(3);
+    h = caract_red(i).BoundingBox(4);
+    signal = I(y:y+h,x:x+w,:);
+    sign(:,:,:,i) = imresize(signal,[100,100]);
+end
+
+for i = 1:num_blue
+    x = caract_blue(i).BoundingBox(1);
+    y = caract_blue(i).BoundingBox(2);
+    w = caract_blue(i).BoundingBox(3);
+    h = caract_blue(i).BoundingBox(4);
+    sign(length(caract_red) + i) = I(y:y+h,x:x+w,:);
 end

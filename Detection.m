@@ -63,7 +63,8 @@ for i = 1:num_blue
     y = caract_blue(i).BoundingBox(2);
     w = caract_blue(i).BoundingBox(3);
     h = caract_blue(i).BoundingBox(4);
-    sign(length(caract_red) + i) = I(y:y+h,x:x+w,:);
+    signal = I(y:y+h,x:x+w,:);
+    sign(:,:,:,num_red+i) = imresize(signal,[100,100]);
 end
 
 %%

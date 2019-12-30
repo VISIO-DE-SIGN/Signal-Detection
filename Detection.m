@@ -27,16 +27,26 @@ caract_red = regionprops(red,'all');
 caract_blue = regionprops(blue,'all');
 
 %%
-% Showing regions bigger than 10 pixels
-imshow(I)
+% Showing regions that follow some criteria
+imshow(I);
 for i = 1:length(caract_red)
-    if(caract_red(i).Area>10)
-        rectangle('Position',caract_red(i).BoundingBox,'EdgeColor','r')
+	BB = caract_red(i).BoundingBox;
+	width = BB(:,3);
+	height = BB(:,4);
+    if((caract_red(i).Area >= 100) && (abs(height - width)/height) < 0.4)
+        rectangle('Position',caract_red(i).BoundingBox,'EdgeColor','r');
+		text(caract_red(i).BoundingBox(:,1),caract_red(i).BoundingBox(:,2),num2str(caract_red(i).Area),'Color','red',...
+		'FontSize',14);
     end
 end
 for i = 1:length(caract_blue)
-    if(caract_blue(i).Area>10)
-        rectangle('Position',caract_blue(i).BoundingBox,'EdgeColor','b')
+	BB = caract_blue(i).BoundingBox;
+	width = BB(:,3);
+	height = BB(:,4);
+    if((caract_blue(i).Area >= 100) && (abs(height - width)/height) < 0.4)
+        rectangle('Position',caract_blue(i).BoundingBox,'EdgeColor','b');
+		text(caract_blue(i).BoundingBox(:,1),caract_blue(i).BoundingBox(:,2),num2str(caract_blue(i).Area),'Color','blue',...
+		'FontSize',14);
     end
 end
 

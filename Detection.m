@@ -70,7 +70,7 @@ end
 %%
 % Show traffic signs detected
 
-for i = 1:length(sign)
+for i = 1:num_red+num_blue
     figure
     imshow(sign(:,:,:,i))
 end

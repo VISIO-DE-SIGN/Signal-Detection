@@ -3,7 +3,7 @@
 %%
 % Charging image
 dataset_path = getenv('Dataset_path');
-image = strcat(dataset_path, "\camera00\00\image.000092.jp2");
+image = strcat(dataset_path, "\camera00\00\image.000134.jp2");
 I = imread(image);
 
 %%
@@ -27,61 +27,48 @@ caract_red = regionprops(red,'all');
 caract_blue = regionprops(blue,'all');
 
 %%
-% Showing regions that follow some criteria
-imshow(I);
-goodBBindex_red = [];
-cont = 1;
-for i = 1:length(caract_red)
-	BB = caract_red(i).BoundingBox;
-	width = BB(:,3);
-	height = BB(:,4);
-    if((caract_red(i).Area >= 100) && (abs(height - width)/height) < 0.4)
-        rectangle('Position',caract_red(i).BoundingBox,'EdgeColor','r');
-		text(caract_red(i).BoundingBox(:,1),caract_red(i).BoundingBox(:,2),num2str(caract_red(i).Area),'Color','red',...
-		'FontSize',14);
-        goodBBindex_red(cont) = i;
-        cont = cont+1;
-    end
-end
+% Filtering regions
+goodBBindex_red = filter_by_area(caract_red, 100);
+goodBBindex_blue = filter_by_area(caract_blue, 100);
 
-goodBBindex_blue = [];
-cont = 1;
-for i = 1:length(caract_blue)
-	BB = caract_blue(i).BoundingBox;
-	width = BB(:,3);
-	height = BB(:,4);
-    if((caract_blue(i).Area >= 100) && (abs(height - width)/height) < 0.4)
-        rectangle('Position',caract_blue(i).BoundingBox,'EdgeColor','b');
-		text(caract_blue(i).BoundingBox(:,1),caract_blue(i).BoundingBox(:,2),num2str(caract_blue(i).Area),'Color','blue',...
-		'FontSize',14);
-        goodBBindex_blue(cont) = i;
-        cont = cont+1;
-    end
-end
+red_regions = caract_red(goodBBindex_red);
+blue_regions = caract_red(goodBBindex_blue);
+
+goodBBindex_red = filter_by_aspRatio(red_regions,1,0.1);
+goodBBindex_blue = filter_by_aspRatio(blue_regions,1,0.1);
+
+red_regions = red_regions(goodBBindex_red);
+blue_regions = blue_regions(goodBBindex_blue);
+
+
+%%
+% Showing regions that follow some criteria
+showBB(I,red_regions,'red');
+showBB(I,blue_regions,'blue');
 
 %%
 % saving those regions as new images
 % they will be passed to the clasification neural net.
 
 % preallocation for 100x100 resolution images
-num_red = length(goodBBindex_red);
-num_blue = length(goodBBindex_blue);
+num_red = length(red_regions);
+num_blue = length(blue_regions);
 sign = uint8(zeros(100,100,3,num_red+num_blue));
 
 for i = 1:num_red
-    x = caract_red(goodBBindex_red(i)).BoundingBox(1);
-    y = caract_red(goodBBindex_red(i)).BoundingBox(2);
-    w = caract_red(goodBBindex_red(i)).BoundingBox(3);
-    h = caract_red(goodBBindex_red(i)).BoundingBox(4);
+    x = red_regions(i).BoundingBox(1);
+    y = red_regions(i).BoundingBox(2);
+    w = red_regions(i).BoundingBox(3);
+    h = red_regions(i).BoundingBox(4);
     signal = I(y:y+h,x:x+w,:);
     sign(:,:,:,i) = imresize(signal,[100,100]);
 end
 
 for i = 1:num_blue
-    x = caract_blue(goodBBindex_blue(i)).BoundingBox(1);
-    y = caract_blue(goodBBindex_blue(i)).BoundingBox(2);
-    w = caract_blue(goodBBindex_blue(i)).BoundingBox(3);
-    h = caract_blue(goodBBindex_blue(i)).BoundingBox(4);
+    x = blue_regions(i).BoundingBox(1);
+    y = blue_regions(i).BoundingBox(2);
+    w = blue_regions(i).BoundingBox(3);
+    h = blue_regions(i).BoundingBox(4);
     signal = I(y:y+h,x:x+w,:);
     sign(:,:,:,num_red+i) = imresize(signal,[100,100]);
 end

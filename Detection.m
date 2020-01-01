@@ -1,5 +1,5 @@
 % Signal detection
-
+clear
 %%
 % Charging image
 dataset_path = getenv('Dataset_path');
@@ -32,10 +32,10 @@ goodBBindex_red = filter_by_area(caract_red, 100);
 goodBBindex_blue = filter_by_area(caract_blue, 100);
 
 red_regions = caract_red(goodBBindex_red);
-blue_regions = caract_red(goodBBindex_blue);
+blue_regions = caract_blue(goodBBindex_blue);
 
-goodBBindex_red = filter_by_aspRatio(red_regions,1,0.1);
-goodBBindex_blue = filter_by_aspRatio(blue_regions,1,0.1);
+goodBBindex_red = filter_by_aspRatio(red_regions,1,0.5);
+goodBBindex_blue = filter_by_aspRatio(blue_regions,1,0.5);
 
 red_regions = red_regions(goodBBindex_red);
 blue_regions = blue_regions(goodBBindex_blue);
@@ -43,8 +43,8 @@ blue_regions = blue_regions(goodBBindex_blue);
 
 %%
 % Showing regions that follow some criteria
-showBB(I,red_regions,'red');
-showBB(I,blue_regions,'blue');
+showBB(I,red_regions,'red',true);
+showBB(I,blue_regions,'blue',false);
 
 %%
 % saving those regions as new images

@@ -9,7 +9,7 @@ index = [];
 cont = 1;
 
 for i = 1:length(regions)
-    BB = region(i).BoundingBox;
+    BB = regions(i).BoundingBox;
 	width = BB(:,3);
 	height = BB(:,4);
     if(width/height > ratio - tolerance && width/height < ratio + tolerance)

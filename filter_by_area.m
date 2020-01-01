@@ -8,7 +8,7 @@ index = [];
 cont = 1;
 
 for i = 1:length(regions)
-    if(regions(i).Area > area)
+    if(regions(i).Area >= area)
         index(cont) = i;
         cont = cont+1;
     end

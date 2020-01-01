@@ -7,7 +7,8 @@ function [] = showBB(image, regions, color)
 if nargin < 3
    	color = 'blue';
 end
-  
+
+figure
 imshow(image);
 for i = 1:length(regions)
     x = regions(i).BoundingBox(:,1);

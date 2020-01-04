@@ -1,6 +1,6 @@
-function [final_BBs] = mergeBBs(regions,margin)
+function [final_BBs] = mergeBBs(BBs,margin)
 %Merges Bounding boxes that are near to each other.
-%   inputs: regions     -> BB to analize
+%   inputs: BBs         -> BB to analize
 %           margin      -> max distance between separated regions
 
 %   output: final_regions -> the final BBs
@@ -8,18 +8,18 @@ final_BBs = [];
 joined = [];
 nJoin = 0;
 count = 0;
-for i = 1:length(regions)
+for i = 1:length(BBs)
     %Comprueba que i no se ha unido ya
     k = find(joined==i,1);
     if isempty(k)==0
         continue;
     end
-    %Obtencion de BB
-    BB1 = regions(i).BoundingBox;
+    %Obtencion de centro y radio
+    BB1 = BBs(i,:);
     c1 = [BB1(1)+BB1(3)/2, BB1(2)+BB1(4)/2];
     r1 = sqrt(BB1(3)^2/4 + BB1(4)^2/4);
     %viscircles(c1,r1);
-    for j = i:length(regions)
+    for j = i:length(BBs)
         if (j == i)
             continue;
         end
@@ -28,7 +28,7 @@ for i = 1:length(regions)
         if isempty(k)==0
             continue;
         end
-        BB2 = regions(j).BoundingBox;
+        BB2 = BBs(j,:);
         c2 = [BB2(1)+BB2(3)/2, BB2(2)+BB2(4)/2];
         r2 = sqrt(BB2(3)^2/4 + BB2(4)^2/4);
         dist = sqrt((c1(1)-c2(1))^2 + (c1(2)-c2(2))^2);
@@ -79,7 +79,7 @@ for i = 1:length(regions)
                 joined = [joined,j];
             end
             %}
-            rectangle('Position',newBB,'EdgeColor','green');
+            %rectangle('Position',newBB,'EdgeColor','green');
             
         end
     end
@@ -87,13 +87,13 @@ for i = 1:length(regions)
 end
 
 %not merged list
-non_merged_region = [];
-for i = 1:length(regions)
+non_merged_BBs = [];
+for i = 1:length(BBs)
     k = find(joined==i,1);
     if isempty(k)
-        non_merged_region = [non_merged_region; regions(i).BoundingBox];
+        non_merged_BBs = [non_merged_BBs; BBs(i,:)];
     end
 end
-final_BBs = [final_BBs; non_merged_region];
+final_BBs = [final_BBs; non_merged_BBs];
 end
 

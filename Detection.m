@@ -38,7 +38,12 @@ showBB(I,blue_regions,'blue',true);
 
 BBs_blue = [];
 for i=1:length(blue_regions)
-    BBs_blue = [BBs_blue; blue_regions(i).BoundingBox];
+    BB = blue_regions(i).BoundingBox;
+    bb.x = BB(1);
+    bb.y = BB(2);
+    bb.width = BB(3);
+    bb.height = BB(4);
+    BBs_blue = [BBs_blue; bb];
 end
 
 diferent = false;
@@ -51,9 +56,9 @@ while 1
     last_BBs = mergedBB;
 end
 
-
 for i=1:length(mergedBB)
-    rectangle('Position',mergedBB(i,:),'EdgeColor','green');
+    rect = [mergedBB(i).x, mergedBB(i).y, mergedBB(i).width, mergedBB(i).height];
+    rectangle('Position',rect,'EdgeColor','green');
 end
 
 goodBBindex_red = filter_by_aspRatio(red_regions,1,0.5);

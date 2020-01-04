@@ -28,11 +28,33 @@ caract_blue = regionprops(blue,'all');
 
 %%
 % Filtering regions
-goodBBindex_red = filter_by_area(caract_red, 100);
-goodBBindex_blue = filter_by_area(caract_blue, 100);
+
+goodBBindex_red = filter_by_area(caract_red, 10);
+goodBBindex_blue = filter_by_area(caract_blue, 10);
 
 red_regions = caract_red(goodBBindex_red);
 blue_regions = caract_blue(goodBBindex_blue);
+showBB(I,blue_regions,'blue',true);
+
+BBs_blue = [];
+for i=1:length(blue_regions)
+    BBs_blue = [BBs_blue; blue_regions(i).BoundingBox];
+end
+
+diferent = false;
+last_BBs = BBs_blue;
+while 1
+    mergedBB = mergeBBs(last_BBs,1);
+    if length(last_BBs) == length(mergedBB)
+        break
+    end
+    last_BBs = mergedBB;
+end
+
+
+for i=1:length(mergedBB)
+    rectangle('Position',mergedBB(i,:),'EdgeColor','green');
+end
 
 goodBBindex_red = filter_by_aspRatio(red_regions,1,0.5);
 goodBBindex_blue = filter_by_aspRatio(blue_regions,1,0.5);

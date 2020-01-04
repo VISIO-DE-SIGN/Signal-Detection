@@ -9,12 +9,23 @@ joined = [];
 nJoin = 0;
 count = 0;
 for i = 1:length(regions)
+    %Comprueba que i no se ha unido ya
+    k = find(joined==i,1);
+    if isempty(k)==0
+        continue;
+    end
+    %Obtencion de BB
     BB1 = regions(i).BoundingBox;
     c1 = [BB1(1)+BB1(3)/2, BB1(2)+BB1(4)/2];
     r1 = sqrt(BB1(3)^2/4 + BB1(4)^2/4);
-    viscircles(c1,r1);
+    %viscircles(c1,r1);
     for j = i:length(regions)
         if (j == i)
+            continue;
+        end
+        %Comprueba que j no se ha unido ya
+        k = find(joined==j,1);
+        if isempty(k)==0
             continue;
         end
         BB2 = regions(j).BoundingBox;
@@ -50,7 +61,7 @@ for i = 1:length(regions)
             else 
                 maxY = BB2(2)+BB2(4);
             end
-            
+            %new BB
             widthX = maxX - minX;
             widthY = maxY - minY;
             newBB = [minX, minY, widthX, widthY];
@@ -59,12 +70,12 @@ for i = 1:length(regions)
             nJoin = nJoin + 2;
             %verifica si i se ha unido ya
             k = find(joined==i,1);
-            if isempty(k)==0
+            if isempty(k)
                 joined = [joined,i];
             end
             %verifica si j se ha unido ya
             k = find(joined==j,1);
-            if isempty(k)==0
+            if isempty(k)
                 joined = [joined,j];
             end
             %}
@@ -75,4 +86,14 @@ for i = 1:length(regions)
     
 end
 
+%not merged list
+non_merged_region = [];
+for i = 1:length(regions)
+    k = find(joined==i,1);
+    if isempty(k)
+        non_merged_region = [non_merged_region; regions(i).BoundingBox];
+    end
 end
+final_BBs = [final_BBs; non_merged_region];
+end
+

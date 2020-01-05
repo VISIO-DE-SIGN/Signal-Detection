@@ -37,7 +37,7 @@ blue_regions = caract_blue(goodBBindex_blue);
 %showBB(I,blue_regions,'blue',true,false);
 
 BBs_blue = region2BB(blue_regions);
-BBs_red = region2BB(blue_regions);
+BBs_red = region2BB(red_regions);
 
 BBs_all = [BBs_blue;BBs_red];
 
@@ -57,8 +57,9 @@ for i=1:length(mergedBB)
 end
 
 goodBBindex_all = filter_by_aspRatio(mergedBB,1,0.5, true);
-
 good_BBs = mergedBB(goodBBindex_all);
+goodBBindex_all = filter_by_area(good_BBs, 100,true);
+good_BBs = good_BBs(goodBBindex_all);
 
 %%
 % Showing regions that follow some criteria

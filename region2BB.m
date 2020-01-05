@@ -4,7 +4,7 @@ function [BBs] = region2BB(regions)
 %   output: BBs         -> Bounding boxes as structs
 
 BBs = [];
-for i=1:length(blue_regions)
+for i=1:length(regions)
     BB = regions(i).BoundingBox;
     bb.x = BB(1);
     bb.y = BB(2);

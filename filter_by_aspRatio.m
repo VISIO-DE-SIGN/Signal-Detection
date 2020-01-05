@@ -10,8 +10,8 @@ cont = 1;
 
 for i = 1:length(regions)
     if BB_format
-        width = regions.width;
-        height = regions.height;
+        width = regions(i).width;
+        height = regions(i).height;
     else
         BB = regions(i).BoundingBox;
         width = BB(:,3);

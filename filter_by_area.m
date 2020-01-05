@@ -4,6 +4,10 @@ function [index] = filter_by_area(regions,min_area,BB_format)
 %           min_area    -> minimum area
 %   output: index       -> retuns the index of BBs that meet the condition
 
+if nargin < 3
+    BB_format = false;
+end
+
 index = [];
 cont = 1;
 

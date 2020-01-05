@@ -34,20 +34,15 @@ goodBBindex_blue = filter_by_area(caract_blue, 10);
 
 red_regions = caract_red(goodBBindex_red);
 blue_regions = caract_blue(goodBBindex_blue);
-showBB(I,blue_regions,'blue',true);
+%showBB(I,blue_regions,'blue',true,false);
 
-BBs_blue = [];
-for i=1:length(blue_regions)
-    BB = blue_regions(i).BoundingBox;
-    bb.x = BB(1);
-    bb.y = BB(2);
-    bb.width = BB(3);
-    bb.height = BB(4);
-    BBs_blue = [BBs_blue; bb];
-end
+BBs_blue = region2BB(blue_regions);
+BBs_red = region2BB(blue_regions);
+
+BBs_all = [BBs_blue;BBs_red];
 
 diferent = false;
-last_BBs = BBs_blue;
+last_BBs = BBs_all;
 while 1
     mergedBB = mergeBBs(last_BBs,1);
     if length(last_BBs) == length(mergedBB)
@@ -55,55 +50,40 @@ while 1
     end
     last_BBs = mergedBB;
 end
-
+% show merged
 for i=1:length(mergedBB)
     rect = [mergedBB(i).x, mergedBB(i).y, mergedBB(i).width, mergedBB(i).height];
     rectangle('Position',rect,'EdgeColor','green');
 end
 
-goodBBindex_red = filter_by_aspRatio(red_regions,1,0.5);
-goodBBindex_blue = filter_by_aspRatio(blue_regions,1,0.5);
+goodBBindex_all = filter_by_aspRatio(mergedBB,1,0.5, true);
 
-red_regions = red_regions(goodBBindex_red);
-blue_regions = blue_regions(goodBBindex_blue);
-
+good_BBs = mergedBB(goodBBindex_all);
 
 %%
 % Showing regions that follow some criteria
-showBB(I,red_regions,'red',true);
-showBB(I,blue_regions,'blue',false);
+showBB(I,good_BBs,'blue',true,true);
 
 %%
 % saving those regions as new images
 % they will be passed to the clasification neural net.
 
 % preallocation for 100x100 resolution images
-num_red = length(red_regions);
-num_blue = length(blue_regions);
-sign = uint8(zeros(100,100,3,num_red+num_blue));
+sign = uint8(zeros(100,100,3,length(good_BBs)));
 
-for i = 1:num_red
-    x = red_regions(i).BoundingBox(1);
-    y = red_regions(i).BoundingBox(2);
-    w = red_regions(i).BoundingBox(3);
-    h = red_regions(i).BoundingBox(4);
+for i = 1:length(good_BBs)
+    x = good_BBs(i).x;
+    y = good_BBs(i).y;
+    w = good_BBs(i).width;
+    h = good_BBs(i).height;
     signal = I(y:y+h,x:x+w,:);
     sign(:,:,:,i) = imresize(signal,[100,100]);
-end
-
-for i = 1:num_blue
-    x = blue_regions(i).BoundingBox(1);
-    y = blue_regions(i).BoundingBox(2);
-    w = blue_regions(i).BoundingBox(3);
-    h = blue_regions(i).BoundingBox(4);
-    signal = I(y:y+h,x:x+w,:);
-    sign(:,:,:,num_red+i) = imresize(signal,[100,100]);
 end
 
 %%
 % Show traffic signs detected
 
-for i = 1:num_red+num_blue
+for i = 1:length(good_BBs)
     figure
     imshow(sign(:,:,:,i))
 end

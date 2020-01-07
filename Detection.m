@@ -12,6 +12,13 @@ B = I(:,:,3) - I(:,:,1) - I(:,:,2);
 R = I(:,:,1) - I(:,:,2) - I(:,:,3);
 
 %%
+%Adjust dinamic range
+%{
+B = B / max(B(:)) * 255;
+R = R / max(R(:)) * 255;
+%}
+
+%%
 % Binarizing image
 blue = imbinarize(B,'adaptive');
 red = imbinarize(R,'adaptive');

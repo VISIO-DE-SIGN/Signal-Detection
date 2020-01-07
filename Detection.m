@@ -57,8 +57,8 @@ caract_blue = regionprops(blue,'all');
 %%
 % Filtering regions
 
-goodBBindex_red = filter_by_area(caract_red, 10);
-goodBBindex_blue = filter_by_area(caract_blue, 10);
+goodBBindex_red = filter_by_area(caract_red, [10 inf]);
+goodBBindex_blue = filter_by_area(caract_blue, [10 inf]);
 
 red_regions = caract_red(goodBBindex_red);
 blue_regions = caract_blue(goodBBindex_blue);
@@ -88,7 +88,7 @@ end
 
 goodBBindex_all = filter_by_aspRatio(mergedBB,1,0.5, true);
 good_BBs = mergedBB(goodBBindex_all);
-goodBBindex_all = filter_by_area(good_BBs, 100,true);
+goodBBindex_all = filter_by_area(good_BBs, [100 10000],true);
 good_BBs = good_BBs(goodBBindex_all);
 
 %%

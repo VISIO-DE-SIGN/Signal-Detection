@@ -22,6 +22,16 @@ blue = blue(3:end-2,3:end-2);
 red = red(3:end-2,3:end-2);
 
 %%
+% show red and blue areas
+figure
+imshow(blue);
+title('Blue areas');
+
+figure
+imshow(red);
+title('Red areas');
+
+%%
 % Getting regions 
 caract_red = regionprops(red,'all');
 caract_blue = regionprops(blue,'all');
@@ -51,10 +61,12 @@ while 1
     last_BBs = mergedBB;
 end
 % show merged
+%{
 for i=1:length(mergedBB)
     rect = [mergedBB(i).x, mergedBB(i).y, mergedBB(i).width, mergedBB(i).height];
     rectangle('Position',rect,'EdgeColor','green');
 end
+%}
 
 goodBBindex_all = filter_by_aspRatio(mergedBB,1,0.5, true);
 good_BBs = mergedBB(goodBBindex_all);

@@ -29,14 +29,25 @@ blue = blue(3:end-2,3:end-2);
 red = red(3:end-2,3:end-2);
 
 %%
-% show red and blue areas
+% Find circles
+[centers_r, radii_r, metric_r] = imfindcircles(red,[15 50]);
+[centers_b, radii_b, metric_b] = imfindcircles(blue,[15 50]);
+
+%centersStrong5 = centers_b(1:5,:);
+%radiiStrong5 = radii_b(1:5);
+%metricStrong5 = metric_b(1:5);
+
+%%
+% show red and blue areas (and respective circles)
 figure
 imshow(blue);
 title('Blue areas');
+viscircles(centers_b, radii_b,'EdgeColor','b');
 
 figure
 imshow(red);
 title('Red areas');
+viscircles(centers_r, radii_r,'EdgeColor','r');
 
 %%
 % Getting regions 

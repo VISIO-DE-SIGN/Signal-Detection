@@ -1,9 +1,10 @@
 % Signal detection
 clear
+close all
 %%
 % Charging image
 dataset_path = getenv('Dataset_path');
-image = strcat(dataset_path, "\camera00\00\image.000134.jp2");
+image = strcat(dataset_path, "\camera00\00\image.000060.jp2");
 I = imread(image);
 
 %%
@@ -32,6 +33,7 @@ red = red(3:end-2,3:end-2);
 % Find circles
 [centers_r, radii_r, metric_r] = imfindcircles(red,[15 50]);
 [centers_b, radii_b, metric_b] = imfindcircles(blue,[15 50]);
+% min metric 0.4
 
 %centersStrong5 = centers_b(1:5,:);
 %radiiStrong5 = radii_b(1:5);
@@ -62,7 +64,10 @@ goodBBindex_blue = filter_by_area(caract_blue, [10 inf]);
 
 red_regions = caract_red(goodBBindex_red);
 blue_regions = caract_blue(goodBBindex_blue);
+%showBB(I,red_regions,'red',true,false);
 %showBB(I,blue_regions,'blue',true,false);
+%goodBBindex_red = filter_by_aspRatio(red_regions,1,0.5, false);
+%red_regions = red_regions(goodBBindex_red);
 
 BBs_blue = region2BB(blue_regions);
 BBs_red = region2BB(red_regions);
@@ -78,6 +83,7 @@ while 1
     end
     last_BBs = mergedBB;
 end
+
 % show merged
 %{
 for i=1:length(mergedBB)
@@ -88,7 +94,7 @@ end
 
 goodBBindex_all = filter_by_aspRatio(mergedBB,1,0.5, true);
 good_BBs = mergedBB(goodBBindex_all);
-goodBBindex_all = filter_by_area(good_BBs, [100 10000],true);
+goodBBindex_all = filter_by_area(good_BBs, [1000 20000],true);
 good_BBs = good_BBs(goodBBindex_all);
 
 %%

@@ -22,6 +22,7 @@ clearvars file
 n_good = 0;
 n_bad = 0;
 n_missed = 0;
+n_gnd_truth_sings = 0;
 
 %n_imagenes = length(im_names);
 n_imagenes = 50;
@@ -78,9 +79,12 @@ for i = 1:n_imagenes
     
     n_good = n_good + length(good_detection);
     n_bad = n_bad + n_BBs - n_good;
+    n_gnd_truth_sings = n_gnd_truth_sings + n_signs;
     
 end
 
-n_repetidas = n_good + n_missed - n_imagenes;
+n_repetidas = n_good + n_missed - n_gnd_truth_sings;
 
-
+n_good
+n_bad
+n_repetidas

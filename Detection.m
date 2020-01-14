@@ -1,10 +1,10 @@
+function [BB_table] = Detection(image)
+
 % Signal detection
 
 %%
 % Charging image
-dataset_path = getenv('Dataset_path');
-image = strcat(dataset_path, "\camera00\00\image.000092.jp2");
-I = imread(image);
+I = image;
 
 %%
 % Only blue and red pixels
@@ -28,6 +28,7 @@ caract_blue = regionprops(blue,'all');
 
 %%
 % Showing regions bigger than 10 pixels
+%{
 imshow(I)
 for i = 1:length(caract_red)
     if(caract_red(i).Area>10)
@@ -39,7 +40,7 @@ for i = 1:length(caract_blue)
         rectangle('Position',caract_blue(i).BoundingBox,'EdgeColor','b')
     end
 end
-
+%}
 %%
 % saving those regions as new images
 % they will be passed to the clasification neural net.
@@ -47,15 +48,16 @@ end
 % preallocation for 100x100 resolution images
 num_red = length(caract_red);
 num_blue = length(caract_blue);
-sign = uint8(zeros(100,100,3,num_red+num_blue));
-
+%sign = uint8(zeros(100,100,3,num_red+num_blue));
+signal = zeros(num_red+num_blue,4);
 for i = 1:num_red
     x = caract_red(i).BoundingBox(1);
     y = caract_red(i).BoundingBox(2);
     w = caract_red(i).BoundingBox(3);
     h = caract_red(i).BoundingBox(4);
-    signal = I(y:y+h,x:x+w,:);
-    sign(:,:,:,i) = imresize(signal,[100,100]);
+    %signal = I(y:y+h,x:x+w,:);
+    %sign(:,:,:,i) = imresize(signal,[100,100]);
+    signal(i,:) = [x,y,w,h];
 end
 
 for i = 1:num_blue
@@ -63,14 +65,21 @@ for i = 1:num_blue
     y = caract_blue(i).BoundingBox(2);
     w = caract_blue(i).BoundingBox(3);
     h = caract_blue(i).BoundingBox(4);
-    signal = I(y:y+h,x:x+w,:);
-    sign(:,:,:,num_red+i) = imresize(signal,[100,100]);
+    %signal = I(y:y+h,x:x+w,:);
+    %sign(:,:,:,num_red+i) = imresize(signal,[100,100]);
+    signal(num_red+i,:) = [x,y,w,h];
 end
+
+
 
 %%
 % Show traffic signs detected
-
+%{
 for i = 1:num_red+num_blue
     figure
     imshow(sign(:,:,:,i))
+end
+%}
+
+BB_table = signal;
 end

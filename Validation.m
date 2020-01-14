@@ -25,7 +25,8 @@ n_missed = 0;
 n_gnd_truth_sings = 0;
 
 %n_imagenes = length(im_names);
-n_imagenes = 50;
+n_imagenes = 100;
+iou_threshold = 0.6;
 
 for i = 1:n_imagenes
     disp(i);
@@ -42,7 +43,6 @@ for i = 1:n_imagenes
     [n_BBs,ans] = size(BBs);
     
     %IoU
-    iou_threshold = 0.5;
     good_detection = [];
     iou = [];
     for j = 1:n_signs
@@ -85,6 +85,10 @@ end
 
 n_repetidas = n_good + n_missed - n_gnd_truth_sings;
 
+n_gnd_truth_sings
 n_good
+n_missed
 n_bad
 n_repetidas
+
+disp(strcat("deteccion = ", string((n_good - n_repetidas) / n_gnd_truth_sings)));

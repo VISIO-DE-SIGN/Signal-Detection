@@ -78,7 +78,7 @@ for i = 1:n_imagenes
     end
     
     n_good = n_good + length(good_detection);
-    n_bad = n_bad + n_BBs - n_good;
+    n_bad = n_bad + n_BBs - length(good_detection);
     n_gnd_truth_sings = n_gnd_truth_sings + n_signs;
     
 end

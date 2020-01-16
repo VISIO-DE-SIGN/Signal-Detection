@@ -27,13 +27,17 @@ red = red(3:end-2,3:end-2);
 
 %%
 % Find circles
-[centers_r, radii_r, metric_r] = imfindcircles(red,[15 50]);
-[centers_b, radii_b, metric_b] = imfindcircles(blue,[15 50]);
-% min metric 0.4
+[centers_r, radii_r, metric_r] = imfindcircles(red,[10 50]);
+[centers_b, radii_b, metric_b] = imfindcircles(blue,[10 50]);
 
-%centersStrong5 = centers_b(1:5,:);
-%radiiStrong5 = radii_b(1:5);
-%metricStrong5 = metric_b(1:5);
+% Selecting circles with a greater metric than threshold
+metric_threshold = 0.6;
+
+centersB_ok = centers_b(metric_b > metric_threshold,:);
+radiiB_ok = radii_b(metric_b > metric_threshold);
+
+centersR_ok = centers_r(metric_r > metric_threshold,:);
+radiiR_ok = radii_r(metric_r > metric_threshold);
 
 %%
 % show red and blue areas (and respective circles)

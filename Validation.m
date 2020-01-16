@@ -1,5 +1,6 @@
 % Processing images for validation
 clear
+debug_mode = false;
 
 %Set dataset path
 dataset_path = getenv('Dataset_path');
@@ -34,7 +35,7 @@ for i = 1:n_imagenes
     % Charging image
     im_path = strcat(dataset_path, "\camera00\00\" ,im_names(i,:));
     I = imread(im_path);
-    BBs = Detection(I);
+    BBs = Detection(I, debug_mode);
     
     
     im_name = strcat("00/", im_names(i,:));
@@ -48,10 +49,10 @@ for i = 1:n_imagenes
     for j = 1:n_signs
         sign_detected = false;
         for k = 1:n_BBs
-            xi1 = max([gnd_truth(j,2).x1, BBs(k,1)]);
-            yi1 = max([gnd_truth(j,3).y1, BBs(k,2)]);
-            xi2 = min([gnd_truth(j,4).x2, BBs(k,1)+BBs(k,3)]);
-            yi2 = min([gnd_truth(j,5).y2, BBs(k,2)+BBs(k,4)]);
+            xi1 = max([gnd_truth(j,2).x1, BBs(k).x]);
+            yi1 = max([gnd_truth(j,3).y1, BBs(k).y]);
+            xi2 = min([gnd_truth(j,4).x2, BBs(k).x+BBs(k).width]);
+            yi2 = min([gnd_truth(j,5).y2, BBs(k).y+BBs(k).height]);
             %comprobacion solape
             if (xi2 < xi1 || yi2 < yi1)
                 continue
@@ -59,7 +60,7 @@ for i = 1:n_imagenes
             inter_area = (xi2 - xi1)*(yi2 - yi1);
             
             box1_area = (gnd_truth(j,5).y2 - gnd_truth(j,3).y1)*(gnd_truth(j,4).x2- gnd_truth(j,2).x1);
-            box2_area = BBs(k,3) * BBs(k,4);
+            box2_area = BBs(k).width * BBs(k).height;
             union_area = (box1_area + box2_area) - inter_area;
             
             IoU = inter_area / union_area;

@@ -27,13 +27,17 @@ red = red(3:end-2,3:end-2);
 
 %%
 % Find circles
-[centers_r, radii_r, metric_r] = imfindcircles(red,[15 50]);
-[centers_b, radii_b, metric_b] = imfindcircles(blue,[15 50]);
-% min metric 0.4
+[centers_r, radii_r, metric_r] = imfindcircles(red,[10 50]);
+[centers_b, radii_b, metric_b] = imfindcircles(blue,[10 50]);
 
-%centersStrong5 = centers_b(1:5,:);
-%radiiStrong5 = radii_b(1:5);
-%metricStrong5 = metric_b(1:5);
+% Selecting circles with a greater metric than threshold
+metric_threshold = 0.6;
+
+centersB_ok = centers_b(metric_b > metric_threshold,:);
+radiiB_ok = radii_b(metric_b > metric_threshold);
+
+centersR_ok = centers_r(metric_r > metric_threshold,:);
+radiiR_ok = radii_r(metric_r > metric_threshold);
 
 %%
 % show red and blue areas (and respective circles)
@@ -41,12 +45,12 @@ if debug_mode
     figure
     imshow(blue);
     title('Blue areas');
-    viscircles(centers_b, radii_b,'EdgeColor','b');
+    viscircles(centersB_ok, radiiB_ok,'EdgeColor','b');
 
     figure
     imshow(red);
     title('Red areas');
-    viscircles(centers_r, radii_r,'EdgeColor','r');
+    viscircles(centersR_ok, radiiR_ok,'EdgeColor','r');
 end
 
 %%
@@ -96,7 +100,65 @@ goodBBindex_all = filter_by_area(good_BBs, [1000 20000],true);
 good_BBs = good_BBs(goodBBindex_all);
 
 %%
-  % Showing regions that follow some criteria
+% Include circle regions
+BB_cir = [];
+for i = 1:length(radiiB_ok)
+    bb.x = centersB_ok(i,1) - radiiB_ok(i);
+    bb.y = centersB_ok(i,2) - radiiB_ok(i);
+    bb.width = radiiB_ok(i) * 2;
+    bb.height = radiiB_ok(i) * 2;
+    BB_cir = [BB_cir ; bb];
+end
+
+for i = 1:length(radiiR_ok)
+    bb.x = centersR_ok(i,1) - radiiR_ok(i);
+    bb.y = centersR_ok(i,2) - radiiR_ok(i);
+    bb.width = radiiR_ok(i) * 2;
+    bb.height = radiiR_ok(i) * 2;
+    BB_cir = [BB_cir ; bb];
+end
+
+good_BBs = [good_BBs; BB_cir];
+
+%%
+%IoU of circle regions
+%{
+BBs = good_BBs;
+[n_cir,ans] = size(BB_cir);
+[n_BBs,ans] = size(BBs);
+
+iou_threshold = 0.7;
+good_detection = [];
+iou = [];
+for j = 1:n_cir
+    for k = 1:n_BBs
+        xi1 = max([BB_cir(k).x, BBs(k).x]);
+        yi1 = max([BB_cir(k).y, BBs(k).y]);
+        xi2 = min([BB_cir(k).x+BB_cir(k).width, BBs(k).x+BBs(k).width]);
+        yi2 = min([BB_cir(k).y+BB_cir(k).height, BBs(k).y+BBs(k).height]);
+        %comprobacion solape
+        if (xi2 < xi1 || yi2 < yi1)
+            continue
+        end
+        inter_area = (xi2 - xi1)*(yi2 - yi1);
+            
+        box1_area = BB_cir(k).width * BB_cir(k).height;
+        box2_area = BBs(k).width * BBs(k).height;
+        union_area = (box1_area + box2_area) - inter_area;
+            
+        IoU = inter_area / union_area;
+        iou = [iou, IoU];
+        if IoU > iou_threshold
+            good_detection = [good_detection,k];
+        end        
+    end
+end
+%}
+
+
+%%
+% Showing regions that follow some criteria
+
 if debug_mode
     showBB(I,good_BBs,'blue',true,true);
 end

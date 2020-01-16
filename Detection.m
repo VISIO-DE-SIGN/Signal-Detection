@@ -100,6 +100,28 @@ goodBBindex_all = filter_by_area(good_BBs, [1000 20000],true);
 good_BBs = good_BBs(goodBBindex_all);
 
 %%
+% Include circle regions
+BB_cir = [];
+for i = 1:length(radiiB_ok)
+    bb.x = centersB_ok(i,1) - radiiB_ok(i);
+    bb.y = centersB_ok(i,2) - radiiB_ok(i);
+    bb.width = radiiB_ok(i) * 2;
+    bb.height = radiiB_ok(i) * 2;
+    BB_cir = [BB_cir ; bb];
+end
+
+for i = 1:length(radiiR_ok)
+    bb.x = centersR_ok(i,1) - radiiR_ok(i);
+    bb.y = centersR_ok(i,2) - radiiR_ok(i);
+    bb.width = radiiR_ok(i) * 2;
+    bb.height = radiiR_ok(i) * 2;
+    BB_cir = [BB_cir ; bb];
+end
+
+good_BBs = [good_BBs; BB_cir];
+
+%%
+%%
 % Showing regions that follow some criteria
 if debug_mode
     showBB(I,good_BBs,'blue',true,true);

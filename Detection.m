@@ -1,15 +1,19 @@
-function [BB_table] = Detection(image)
+function [BBs_table] = Detection(image,debug_mode)
 
-% Signal detection
-
-%%
-% Charging image
+% Trafic Sign detection from image
 I = image;
 
 %%
 % Only blue and red pixels
 B = I(:,:,3) - I(:,:,1) - I(:,:,2);
 R = I(:,:,1) - I(:,:,2) - I(:,:,3);
+
+%%
+%Adjust dinamic range
+%{
+B = B / max(B(:)) * 255;
+R = R / max(R(:)) * 255;
+%}
 
 %%
 % Binarizing image
@@ -22,64 +26,81 @@ blue = blue(3:end-2,3:end-2);
 red = red(3:end-2,3:end-2);
 
 %%
+% Find circles
+[centers_r, radii_r, metric_r] = imfindcircles(red,[15 50]);
+[centers_b, radii_b, metric_b] = imfindcircles(blue,[15 50]);
+% min metric 0.4
+
+%centersStrong5 = centers_b(1:5,:);
+%radiiStrong5 = radii_b(1:5);
+%metricStrong5 = metric_b(1:5);
+
+%%
+% show red and blue areas (and respective circles)
+if debug_mode
+    figure
+    imshow(blue);
+    title('Blue areas');
+    viscircles(centers_b, radii_b,'EdgeColor','b');
+
+    figure
+    imshow(red);
+    title('Red areas');
+    viscircles(centers_r, radii_r,'EdgeColor','r');
+end
+
+%%
 % Getting regions 
 caract_red = regionprops(red,'all');
 caract_blue = regionprops(blue,'all');
 
 %%
-% Showing regions bigger than 10 pixels
-%{
-imshow(I)
-for i = 1:length(caract_red)
-    if(caract_red(i).Area>10)
-        rectangle('Position',caract_red(i).BoundingBox,'EdgeColor','r')
+
+% Filtering regions
+goodBBindex_red = filter_by_area(caract_red, [10 inf]);
+goodBBindex_blue = filter_by_area(caract_blue, [10 inf]);
+
+red_regions = caract_red(goodBBindex_red);
+blue_regions = caract_blue(goodBBindex_blue);
+%showBB(I,red_regions,'red',true,false);
+%showBB(I,blue_regions,'blue',true,false);
+%goodBBindex_red = filter_by_aspRatio(red_regions,1,0.5, false);
+%red_regions = red_regions(goodBBindex_red);
+
+BBs_blue = region2BB(blue_regions);
+BBs_red = region2BB(red_regions);
+
+BBs_all = [BBs_blue;BBs_red];
+
+diferent = false;
+last_BBs = BBs_all;
+while 1
+    mergedBB = mergeBBs(last_BBs,1);
+    if length(last_BBs) == length(mergedBB)
+        break
     end
-end
-for i = 1:length(caract_blue)
-    if(caract_blue(i).Area>10)
-        rectangle('Position',caract_blue(i).BoundingBox,'EdgeColor','b')
-    end
-end
-%}
-%%
-% saving those regions as new images
-% they will be passed to the clasification neural net.
-
-% preallocation for 100x100 resolution images
-num_red = length(caract_red);
-num_blue = length(caract_blue);
-%sign = uint8(zeros(100,100,3,num_red+num_blue));
-signal = zeros(num_red+num_blue,4);
-for i = 1:num_red
-    x = caract_red(i).BoundingBox(1);
-    y = caract_red(i).BoundingBox(2);
-    w = caract_red(i).BoundingBox(3);
-    h = caract_red(i).BoundingBox(4);
-    %signal = I(y:y+h,x:x+w,:);
-    %sign(:,:,:,i) = imresize(signal,[100,100]);
-    signal(i,:) = [x,y,w,h];
+    last_BBs = mergedBB;
 end
 
-for i = 1:num_blue
-    x = caract_blue(i).BoundingBox(1);
-    y = caract_blue(i).BoundingBox(2);
-    w = caract_blue(i).BoundingBox(3);
-    h = caract_blue(i).BoundingBox(4);
-    %signal = I(y:y+h,x:x+w,:);
-    %sign(:,:,:,num_red+i) = imresize(signal,[100,100]);
-    signal(num_red+i,:) = [x,y,w,h];
-end
-
-
-
-%%
-% Show traffic signs detected
+% show merged
 %{
-for i = 1:num_red+num_blue
-    figure
-    imshow(sign(:,:,:,i))
+for i=1:length(mergedBB)
+    rect = [mergedBB(i).x, mergedBB(i).y, mergedBB(i).width, mergedBB(i).height];
+    rectangle('Position',rect,'EdgeColor','green');
 end
 %}
 
-BB_table = signal;
+goodBBindex_all = filter_by_aspRatio(mergedBB,1,0.5, true);
+good_BBs = mergedBB(goodBBindex_all);
+goodBBindex_all = filter_by_area(good_BBs, [1000 20000],true);
+good_BBs = good_BBs(goodBBindex_all);
+
+%%
+  % Showing regions that follow some criteria
+if debug_mode
+    showBB(I,good_BBs,'blue',true,true);
+end
+
+BBs_table = good_BBs;
+
 end

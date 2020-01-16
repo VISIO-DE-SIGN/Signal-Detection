@@ -45,12 +45,12 @@ if debug_mode
     figure
     imshow(blue);
     title('Blue areas');
-    viscircles(centers_b, radii_b,'EdgeColor','b');
+    viscircles(centersB_ok, radiiB_ok,'EdgeColor','b');
 
     figure
     imshow(red);
     title('Red areas');
-    viscircles(centers_r, radii_r,'EdgeColor','r');
+    viscircles(centersR_ok, radiiR_ok,'EdgeColor','r');
 end
 
 %%

@@ -121,6 +121,41 @@ end
 good_BBs = [good_BBs; BB_cir];
 
 %%
+%IoU of circle regions
+%{
+BBs = good_BBs;
+[n_cir,ans] = size(BB_cir);
+[n_BBs,ans] = size(BBs);
+
+iou_threshold = 0.7;
+good_detection = [];
+iou = [];
+for j = 1:n_cir
+    for k = 1:n_BBs
+        xi1 = max([BB_cir(k).x, BBs(k).x]);
+        yi1 = max([BB_cir(k).y, BBs(k).y]);
+        xi2 = min([BB_cir(k).x+BB_cir(k).width, BBs(k).x+BBs(k).width]);
+        yi2 = min([BB_cir(k).y+BB_cir(k).height, BBs(k).y+BBs(k).height]);
+        %comprobacion solape
+        if (xi2 < xi1 || yi2 < yi1)
+            continue
+        end
+        inter_area = (xi2 - xi1)*(yi2 - yi1);
+            
+        box1_area = BB_cir(k).width * BB_cir(k).height;
+        box2_area = BBs(k).width * BBs(k).height;
+        union_area = (box1_area + box2_area) - inter_area;
+            
+        IoU = inter_area / union_area;
+        iou = [iou, IoU];
+        if IoU > iou_threshold
+            good_detection = [good_detection,k];
+        end        
+    end
+end
+%}
+
+
 %%
 % Showing regions that follow some criteria
 if debug_mode

@@ -1,11 +1,7 @@
-% Signal detection
-clear
-close all
-%%
-% Charging image
-dataset_path = getenv('Dataset_path');
-image = strcat(dataset_path, "\camera00\00\image.000060.jp2");
-I = imread(image);
+function [BBs_table] = Detection(image,debug_mode)
+
+% Trafic Sign detection from image
+I = image;
 
 %%
 % Only blue and red pixels
@@ -41,15 +37,17 @@ red = red(3:end-2,3:end-2);
 
 %%
 % show red and blue areas (and respective circles)
-figure
-imshow(blue);
-title('Blue areas');
-viscircles(centers_b, radii_b,'EdgeColor','b');
+if debug_mode
+    figure
+    imshow(blue);
+    title('Blue areas');
+    viscircles(centers_b, radii_b,'EdgeColor','b');
 
-figure
-imshow(red);
-title('Red areas');
-viscircles(centers_r, radii_r,'EdgeColor','r');
+    figure
+    imshow(red);
+    title('Red areas');
+    viscircles(centers_r, radii_r,'EdgeColor','r');
+end
 
 %%
 % Getting regions 
@@ -99,28 +97,11 @@ good_BBs = good_BBs(goodBBindex_all);
 
 %%
 % Showing regions that follow some criteria
-showBB(I,good_BBs,'blue',true,true);
-
-%%
-% saving those regions as new images
-% they will be passed to the clasification neural net.
-
-% preallocation for 100x100 resolution images
-sign = uint8(zeros(100,100,3,length(good_BBs)));
-
-for i = 1:length(good_BBs)
-    x = good_BBs(i).x;
-    y = good_BBs(i).y;
-    w = good_BBs(i).width;
-    h = good_BBs(i).height;
-    signal = I(y:y+h,x:x+w,:);
-    sign(:,:,:,i) = imresize(signal,[100,100]);
+if debug_mode
+    showBB(I,good_BBs,'blue',true,true);
 end
 
-%%
-% Show traffic signs detected
+BBs_table = good_BBs;
 
-for i = 1:length(good_BBs)
-    figure
-    imshow(sign(:,:,:,i))
+
 end

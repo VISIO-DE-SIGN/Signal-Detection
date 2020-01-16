@@ -59,8 +59,8 @@ caract_red = regionprops(red,'all');
 caract_blue = regionprops(blue,'all');
 
 %%
-% Filtering regions
 
+% Filtering regions
 goodBBindex_red = filter_by_area(caract_red, [10 inf]);
 goodBBindex_blue = filter_by_area(caract_blue, [10 inf]);
 
@@ -158,11 +158,11 @@ end
 
 %%
 % Showing regions that follow some criteria
+
 if debug_mode
     showBB(I,good_BBs,'blue',true,true);
 end
 
 BBs_table = good_BBs;
-
 
 end
